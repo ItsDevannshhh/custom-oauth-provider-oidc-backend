@@ -285,7 +285,6 @@ app.post("/token", async (req, res) => {
       });
     }
 
-    // validate client
     const client = await Client.findOne({
       client_id,
     });
@@ -304,7 +303,6 @@ app.post("/token", async (req, res) => {
       });
     }
 
-    // validate authorization code
     const authorizationCode =
       await AuthorizationCode.findOne({
         code,
@@ -321,7 +319,6 @@ app.post("/token", async (req, res) => {
       });
     }
 
-    // verify code belongs to client
     if (
       authorizationCode.client_id !==
       client_id
@@ -332,7 +329,6 @@ app.post("/token", async (req, res) => {
       });
     }
 
-    // get user
     const user = await User.findById(
       authorizationCode.user_id
     );
@@ -343,13 +339,13 @@ app.post("/token", async (req, res) => {
       });
     }
 
-    // create access token
+
     const access_token = createToken({
       sub: user._id,
       email: user.email,
     });
 
-    // create id token
+
     const id_token = jwt.sign(
       {
         sub: user._id,
@@ -367,7 +363,6 @@ app.post("/token", async (req, res) => {
       }
     );
 
-    // one time use code
     await AuthorizationCode.deleteOne({
       code,
     });
@@ -464,7 +459,6 @@ app.get("/.well-known/openid-configuration", async (req, res) => {
 app.get("/.well-known/jwks.json", async (req, res) => {
   try {
 
-    // convert PEM public key -> JWK
     const key = await jose.JWK.asKey(PUBLIC_KEY,"pem");
     const jwk = key.toJSON();
     jwk.alg = "RS256";
